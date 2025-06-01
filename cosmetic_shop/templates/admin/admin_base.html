@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Админ-панель | {% block title %}{% endblock %}</title>
+    <link rel="stylesheet" href="/static/css/admin.css">
+</head>
+<body>
+    <header class="admin-header">
+        <h1>Админ-панель Cosmetic Shop</h1>
+        <a href="{{ url_for('logout') }}" class="logout-btn">Выйти</a>
+    </header>
+
+    <div class="admin-container">
+        <div class="admin-sidebar">
+            <h3>Меню администратора</h3>
+            <ul>
+                <li><a href="{{ url_for('admin_panel') }}">Главная</a></li>
+                <li><a href="{{ url_for('admin_products') }}">Товары</a></li>
+                <li><a href="#">Категории</a></li>
+                <li><a href="#">Заказы</a></li>
+                <li><a href="#">Пользователи</a></li>
+            </ul>
+        </div>
+
+        <div class="admin-main">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }}">{{ message }}</div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+
+            {% block content %}{% endblock %}
+        </div>
+    </div>
+</body>
+</html>

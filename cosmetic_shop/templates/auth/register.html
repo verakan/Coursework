@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cosmetic Shop</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+        }
+
+        body {
+            background-color: white;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Шапка */
+        .header {
+            background-color: #ffb6c1;
+            padding: 20px 0;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            position: relative;
+        }
+
+        .header h1 {
+            color: white;
+            font-size: 24px;
+            letter-spacing: 1px;
+            display: inline-block;
+            margin: 0 auto;
+        }
+
+        /* Кнопка входа/регистрации */
+        .auth-btn {
+            position: absolute;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            padding: 8px 15px;
+            background-color: white;
+            color: #e91e63;
+            border: none;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .auth-btn:hover {
+            background-color: #f8f8f8;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        /* Блок профиля (после входа) */
+        .profile-container {
+            position: absolute;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .profile-icon {
+            width: 32px;
+            height: 32px;
+            background-color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+
+        .profile-icon::after {
+            content: "👤";
+            font-size: 18px;
+        }
+
+        .logout-btn {
+            padding: 6px 12px;
+            background-color: white;
+            color: #e91e63;
+            border: none;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .logout-btn:hover {
+            background-color: #f8f8f8;
+        }
+
+        /* Модальные окна */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 100;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            overflow-y: auto;
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 5% auto;
+            padding: 30px;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 400px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .close-btn {
+            position: absolute;
+            right: 20px;
+            top: 15px;
+            font-size: 24px;
+            font-weight: bold;
+            cursor: pointer;
+            color: #666;
+        }
+
+        .close-btn:hover {
+            color: #e91e63;
+        }
+
+        .tab-container {
+            display: flex;
+            margin-bottom: 25px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 12px 0;
+            text-align: center;
+            cursor: pointer;
+            color: #666;
+            font-weight: 600;
+            position: relative;
+        }
+
+        .tab.active {
+            color: #e91e63;
+        }
+
+        .tab.active::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background-color: #e91e63;
+        }
+
+        .auth-form {
+            display: none;
+            animation: slideIn 0.4s ease-out;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        .auth-form.active {
+            display: block;
+        }
+
+        .auth-form h2 {
+            color: #333;
+            margin-bottom: 25px;
+            text-align: center;
+            font-size: 22px;
+            font-weight: 600;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 15px;
+            transition: all 0.3s;
+        }
+
+        .form-group input:focus {
+            border-color: #ffb6c1;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(255, 182, 193, 0.2);
+        }
+
+        .remember-group {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .remember-checkbox {
+            margin-right: 10px;
+        }
+
+        .form-actions {
+            margin-top: 25px;
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 14px;
+            background-color: #ffb6c1;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .submit-btn:hover {
+            background-color: #e91e63;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(233, 30, 99, 0.3);
+        }
+
+        .auth-footer {
+            text-align: center;
+            margin-top: 20px;
+            color: #666;
+            font-size: 14px;
+        }
+
+        .auth-footer a {
+            color: #e91e63;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        /* Остальные стили магазина */
+        .main-content-header {
+            display: flex;
+            flex-direction: column;
+            padding: 0 20px;
+            margin-bottom: 20px;
+        }
+
+        .search-row {
+            display: flex;
+            padding: 15px 0;
+            align-items: center;
+        }
+
+        .search-container {
+            display: flex;
+            flex: 1;
+            margin-right: 15px;
+        }
+
+        .search-input {
+            flex: 1;
+            padding: 12px 20px;
+            border: 1px solid #e0e0e0;
+            border-radius: 25px;
+            font-size: 16px;
+            outline: none;
+            transition: all 0.3s;
+        }
+
+        .search-input:focus {
+            border-color: #ffb6c1;
+            box-shadow: 0 0 0 3px rgba(255, 182, 193, 0.2);
+        }
+
+        .catalog-btn {
+            padding: 12px 25px;
+            background-color: #ffb6c1;
+            color: white;
+            border: none;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            white-space: nowrap;
+        }
+
+        .catalog-btn:hover {
+            background-color: #e91e63;
+            transform: translateY(-2px);
+        }
+
+        .top-categories-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #e91e63;
+            margin: 15px 0 10px 0;
+            padding-left: 5px;
+        }
+
+        .top-categories-row {
+            width: 100%;
+            overflow-x: auto;
+            padding-bottom: 15px;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .top-categories-row::-webkit-scrollbar {
+            height: 6px;
+        }
+
+        .top-categories-row::-webkit-scrollbar-thumb {
+            background-color: #fff5f7;
+            border-radius: 3px;
+        }
+
+        .top-categories-horizontal {
+            display: inline-flex;
+            gap: 15px;
+            padding: 10px 0;
+            white-space: nowrap;
+        }
+
+        .top-category-horizontal {
+            padding: 12px 25px;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 25px;
+            background-color: #fff5f7;
+            border: 2px solid #fff5f7;
+            color: #e91e63;
+            cursor: pointer;
+            transition: all 0.3s;
+            flex-shrink: 0;
+        }
+
+        .top-category-horizontal:hover {
+            background-color: #fcd6dc;
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(139, 199, 224, 0.3);
+        }
+
+        .nav-container {
+            width: 100%;
+            overflow-x: auto;
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .nav-container::-webkit-scrollbar {
+            height: 6px;
+        }
+
+        .nav-container::-webkit-scrollbar-thumb {
+            background-color: #ffb6c1;
+            border-radius: 3px;
+        }
+
+        .main-nav {
+            display: inline-flex;
+            gap: 10px;
+            padding: 0 20px 10px;
+            white-space: nowrap;
+        }
+
+        .nav-item {
+            padding: 12px 25px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            border-radius: 30px;
+            border: 2px solid #ffb6c1;
+            color: #e91e63;
+            background-color: white;
+            text-align: center;
+            flex-shrink: 0;
+        }
+
+        .nav-item:hover {
+            background-color: #ffb6c1;
+            color: white;
+            box-shadow: 0 5px 15px rgba(233, 30, 99, 0.2);
+            transform: translateY(-3px);
+        }
+
+        .content {
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+    <!-- Шапка -->
+    <header class="header">
+        <h1>Cosmetic Shop</h1>
+        <!-- Кнопка входа (скрывается после авторизации) -->
+        <button class="auth-btn">Войти</button>
+        <!-- Блок профиля (появляется после авторизации) -->
+        <div class="profile-container" style="display: none;">
+            <div class="profile-icon"></div>
+            <button class="logout-btn">Выйти</button>
+        </div>
+    </header>
+
+    <!-- Модальное окно авторизации/регистрации -->
+    <div id="authModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn">&times;</span>
+
+            <div class="tab-container">
+                <div class="tab active" data-tab="login">Вход</div>
+                <div class="tab" data-tab="register">Регистрация</div>
+            </div>
+
+            <!-- Форма входа -->
+            <form id="loginForm" class="auth-form active">
+                <h2>Вход в систему</h2>
+
+                <div class="form-group">
+                    <label for="username">Имя пользователя:</label>
+                    <input type="text" id="username" name="username" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="password">Пароль:</label>
+                    <input type="password" id="password" name="password" required>
+                </div>
+
+                <div class="remember-group">
+                    <input type="checkbox" id="remember" name="remember" class="remember-checkbox">
+                    <label for="remember">Запомнить меня</label>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="submit-btn">Войти</button>
+                </div>
+
+                <div class="auth-footer">
+                    <p>Ещё нет аккаунта? <a href="#" class="switch-to-register">Зарегистрируйтесь</a></p>
+                </div>
+            </form>
+
+            <!-- Форма регистрации -->
+            <form id="registerForm" class="auth-form">
+                <h2>Создать аккаунт</h2>
+
+                <div class="form-group">
+                    <label for="first_name">Имя</label>
+                    <input type="text" id="first_name" name="first_name" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="last_name">Фамилия</label>
+                    <input type="text" id="last_name" name="last_name" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="email">Электронная почта</label>
+                    <input type="email" id="email" name="email" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="reg_username">Имя пользователя</label>
+                    <input type="text" id="reg_username" name="username" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="reg_password">Пароль</label>
+                    <input type="password" id="reg_password" name="password" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="confirm_password">Подтвердите пароль</label>
+                    <input type="password" id="confirm_password" name="confirm_password" required>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="submit-btn">Зарегистрироваться</button>
+                </div>
+
+                <div class="auth-footer">
+                    <p>Уже есть аккаунт? <a href="#" class="switch-to-login">Войти</a></p>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Основная навигация и поиск -->
+    <div class="main-content-header">
+        <!-- Верхняя строка - поиск и каталог -->
+        <div class="search-row">
+            <button class="catalog-btn">Каталог</button>
+            <div class="search-container">
+                <input type="text" placeholder="Поиск товаров..." class="search-input">
+            </div>
+        </div>
+
+        <div class="nav-container">
+            <div class="main-nav">
+                <div class="nav-item">Лицо</div>
+                <div class="nav-item">Волосы</div>
+                <div class="nav-item">Для мужчин</div>
+                <div class="nav-item">Парфюмерия</div>
+                <div class="nav-item">Для детей</div>
+                <div class="nav-item">Макияж</div>
+                <div class="nav-item">Тело</div>
+                <div class="nav-item">Наборы</div>
+                <div class="nav-item">Бренды</div>
+                <div class="nav-item">Акции</div>
+                <div class="nav-item">Бестселлеры</div>
+            </div>
+        </div>
+
+        <!-- Строка с топ-категориями -->
+        <div class="top-categories-title">Топ категории</div>
+        <div class="top-categories-row">
+            <div class="top-categories-horizontal">
+                <div class="top-category-horizontal">Сыворотки</div>
+                <div class="top-category-horizontal">Тоники/лосьоны</div>
+                <div class="top-category-horizontal">Кремы</div>
+                <div class="top-category-horizontal">Шампуни</div>
+                <div class="top-category-horizontal">Кондиционеры</div>
+                <div class="top-category-horizontal">Кремы для век</div>
+                <div class="top-category-horizontal">Пенки/гели</div>
+                <div class="top-category-horizontal">Тканевые маски</div>
+                <div class="top-category-horizontal">Массажеры</div>
+                <div class="top-category-horizontal">Патчи для глаз</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Основной контент -->
+    <div class="content">
+        <!-- Здесь можно разместить остальной контент страницы -->
+    </div>
+
+    <script>
+        // Элементы DOM
+        const authBtn = document.querySelector('.auth-btn');
+        const profileContainer = document.querySelector('.profile-container');
+        const logoutBtn = document.querySelector('.logout-btn');
+        const modal = document.getElementById('authModal');
+        const closeBtn = document.querySelector('.close-btn');
+        const tabs = document.querySelectorAll('.tab');
+        const forms = document.querySelectorAll('.auth-form');
+        const loginForm = document.getElementById('loginForm');
+        const registerForm = document.getElementById('registerForm');
+        const switchToRegisterLinks = document.querySelectorAll('.switch-to-register');
+        const switchToLoginLinks = document.querySelectorAll('.switch-to-login');
+
+        // Открытие модального окна
+        authBtn.addEventListener('click', () => {
+            modal.style.display = 'block';
+            // По умолчанию показываем форму входа
+            switchTab('login');
+        });
+
+        // Закрытие модального окна
+        closeBtn.addEventListener('click', () => {
+            modal.style.display = 'none';
+        });
+
+        // Закрытие при клике вне окна
+        window.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                modal.style.display = 'none';
+            }
+        });
+
+        // Переключение между вкладками
+        tabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                switchTab(tab.dataset.tab);
+            });
+        });
+
+        // Переключение на регистрацию по ссылке
+        switchToRegisterLinks.forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                switchTab('register');
+            });
+        });
+
+        // Переключение на вход по ссылке
+        switchToLoginLinks.forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                switchTab('login');
+            });
+        });
+
+        // Функция переключения вкладок
+        function switchTab(tabName) {
+            tabs.forEach(t => t.classList.remove('active'));
+            forms.forEach(f => f.classList.remove('active'));
+
+            document.querySelector(`.tab[data-tab="${tabName}"]`).classList.add('active');
+            document.getElementById(`${tabName}Form`).classList.add('active');
+        }
+
+        // Обработка формы входа
+        loginForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            // Здесь должна быть логика входа
+            const username = document.getElementById('username').value;
+            console.log('Пользователь вошел:', username);
+
+            // Закрываем модальное окно
+            modal.style.display = 'none';
+
+            // Показываем блок профиля
+            authBtn.style.display = 'none';
+            profileContainer.style.display = 'flex';
+
+            // Можно сохранить информацию о входе
+            localStorage.setItem('isLoggedIn', 'true');
+            localStorage.setItem('username', username);
+        });
+
+        // Обработка формы регистрации
+        registerForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            // Здесь должна быть логика регистрации
+            const username = document.getElementById('reg_username').value;
+            console.log('Пользователь зарегистрирован:', username);
+
+            // После регистрации автоматически входим
+            // Закрываем модальное окно
+            modal.style.display = 'none';
+
+            // Показываем блок профиля
+            authBtn.style.display = 'none';
+            profileContainer.style.display = 'flex';
+
+            // Можно сохранить информацию о входе
+            localStorage.setItem('isLoggedIn', 'true');
+            localStorage.setItem('username', username);
+        });
+
+        // Выход из профиля
+        logoutBtn.addEventListener('click', () => {
+            // Здесь должна быть логика выхода
+            console.log('Пользователь вышел');
+
+            // Показываем кнопку входа
+            authBtn.style.display = 'block';
+            profileContainer.style.display = 'none';
+
+            // Удаляем информацию о входе
+            localStorage.removeItem('isLoggedIn');
+            localStorage.removeItem('username');
+        });
+
+        // Проверяем статус входа при загрузке страницы
+        window.addEventListener('DOMContentLoaded', () => {
+            if (localStorage.getItem('isLoggedIn') === 'true') {
+                authBtn.style.display = 'none';
+                profileContainer.style.display = 'flex';
+            }
+        });
+    </script>
+</body>
+</html>

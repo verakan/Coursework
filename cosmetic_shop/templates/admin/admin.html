@@ -1,0 +1,2047 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Админ-панель | Cosmetic Shop</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+        }
+
+        .admin-header {
+            background-color: #ffb6c1;
+            color: white;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .admin-nav {
+            background-color: #d48a98; /* Новый цвет фона, сочетающийся с хедером */
+            color: white;
+            padding: 15px; /* Увеличили отступы */
+        }
+
+        .admin-nav ul {
+            display: flex;
+            list-style: none;
+        }
+
+        .admin-nav li {
+            margin-right: 25px; /* Увеличили отступ между пунктами */
+        }
+
+        .admin-nav a {
+            color: white;
+            text-decoration: none;
+            padding: 8px 15px; /* Увеличили размер кнопок */
+            border-radius: 4px;
+            transition: background-color 0.3s;
+            font-size: 18px; /* Увеличили размер шрифта */
+            font-weight: 500; /* Сделали шрифт немного жирнее */
+        }
+
+        .admin-nav a:hover {
+            background-color: #c17583; /* Темнее основной цвет при наведении */
+        }
+
+        .admin-container {
+            display: flex;
+            min-height: calc(100vh - 100px);
+        }
+
+        .admin-sidebar {
+            width: 250px;
+            background-color: #d48a98; /* Тот же цвет, что и у навигации */
+            color: white;
+            padding: 25px 20px; /* Увеличили отступы */
+        }
+
+        .admin-sidebar h3 {
+            font-size: 22px; /* Увеличили заголовок */
+            margin-bottom: 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.2);
+            padding-bottom: 10px;
+        }
+
+        .admin-sidebar ul {
+            list-style: none;
+        }
+
+        .admin-sidebar li {
+            margin-bottom: 15px; /* Увеличили отступ между пунктами */
+        }
+
+        .admin-sidebar a {
+            color: white;
+            text-decoration: none;
+            font-size: 18px; /* Увеличили размер шрифта */
+            padding: 8px 12px;
+            display: block;
+            border-radius: 4px;
+            transition: all 0.3s;
+        }
+
+        .admin-sidebar a:hover {
+            background-color: #c17583; /* Темнее основной цвет при наведении */
+            transform: translateX(5px); /* Эффект смещения при наведении */
+        }
+
+        /* Остальные стили остаются без изменений */
+        .admin-main {
+            flex: 1;
+            padding: 20px;
+            background-color: white;
+        }
+
+        .admin-section {
+            display: none;
+        }
+
+        .admin-section.active {
+            display: block;
+        }
+
+        .admin-card {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .admin-btn {
+            padding: 10px 18px; /* Слегка увеличили кнопки */
+            background-color: #e91e63;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-right: 10px;
+            margin-bottom: 10px;
+            font-size: 16px; /* Увеличили шрифт кнопок */
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        th {
+            background-color: #f8f9fa;
+            font-weight: bold;
+        }
+
+        .logout-btn {
+            padding: 8px 16px; /* Слегка увеличили */
+            background-color: white;
+            color: #e91e63;
+            border: none;
+            border-radius: 15px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 16px; /* Увеличили шрифт */
+        }
+        /* Добавляем стили для модального окна */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+        }
+
+        .modal-content {
+            background-color: #fff;
+            margin: 10% auto;
+            padding: 25px;
+            border-radius: 8px;
+            width: 50%;
+            max-width: 600px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .modal-header h2 {
+            color: #e91e63;
+            margin: 0;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #888;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #555;
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+
+        .form-group textarea {
+            height: 100px;
+            resize: vertical;
+        }
+
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 20px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-left: 10px;
+        }
+
+        .btn-primary {
+            background-color: #e91e63;
+            color: white;
+            border: none;
+        }
+
+        .btn-secondary {
+            background-color: #f5f5f5;
+            color: #333;
+            border: 1px solid #ddd;
+        }
+        #searchInput {
+    padding: 10px 15px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 16px;
+    width: 300px;
+    margin-right: 10px;
+}
+
+        #searchBtn {
+    padding: 10px 15px;
+    background-color: #ffc0cb;
+    margin-left: 5px;
+}
+#clearSearch {
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    color: #888;
+    font-size: 18px;
+    display: none;
+}
+
+#clearSearch:hover {
+    color: #555;
+}
+        /* Категории */
+        .category-card {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            border: 1px solid #eee;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            background-color: #f9f9f9;
+        }
+
+        .category-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .category-actions button {
+            padding: 5px 10px;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+
+
+/* Удалите старые стили для кнопок категорий */
+.edit-category-btn {
+    background-color: #e91e63; /* Розовый как у других кнопок */
+    color: white;
+    padding: 8px 12px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.3s;
+}
+
+.delete-category-btn {
+    background-color: #e91e63; /* Красный для удаления */
+    color: white;
+    padding: 8px 12px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.3s;
+}
+
+/* Общие стили для всех кнопок при наведении */
+.edit-category-btn:hover,
+.delete-category-btn:hover {
+    opacity: 0.9;
+}
+
+/* Общие стили для кнопок действий */
+.admin-btn {
+    padding: 8px 12px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.3s;
+}
+
+.admin-btn:hover {
+    opacity: 0.9;
+}
+
+/* Стили для раздела статистики */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.stat-card {
+    background: white;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    text-align: center;
+}
+
+.stat-card h3 {
+    color: #555;
+    font-size: 16px;
+    margin-bottom: 10px;
+}
+
+.stat-value {
+    font-size: 28px;
+    font-weight: bold;
+    color: #e91e63;
+    margin: 10px 0;
+}
+
+.stat-change {
+    font-size: 14px;
+    color: #888;
+}
+
+.status-bars {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.status-bar {
+    flex-grow: 1;
+    background: #f5f5f5;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.status-bar-fill {
+    height: 30px;
+    background: #e91e63;
+    transition: width 0.5s;
+}
+
+.status-label {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 5px;
+    font-size: 14px;
+}
+
+#activity-chart {
+    width: 100%;
+    margin-top: 20px;
+}
+
+        /* Добавляем в секцию стилей */
+.quick-actions {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.quick-actions button {
+    flex: 1;
+    padding: 12px;
+    font-size: 16px;
+}
+
+.dashboard-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+    margin-top: 20px;
+}
+
+.stat-card {
+    background: white;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    text-align: center;
+}
+
+.stat-card h3 {
+    color: #555;
+    font-size: 16px;
+    margin-bottom: 10px;
+}
+
+.stat-value {
+    font-size: 28px;
+    font-weight: bold;
+    color: #e91e63;
+    margin: 10px 0;
+}
+
+        .chat-container {
+    display: flex;
+    height: 600px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}
+
+.chat-list {
+    width: 300px;
+    border-right: 1px solid #ddd;
+    overflow-y: auto;
+}
+
+.chat-messages {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.messages-container {
+    flex: 1;
+    padding: 15px;
+    overflow-y: auto;
+}
+
+.message-input {
+    padding: 10px;
+    border-top: 1px solid #ddd;
+    display: flex;
+}
+
+.message-input input {
+    flex: 1;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.message-input button {
+    margin-left: 10px;
+    padding: 8px 15px;
+    background-color: #e91e63;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.chat-room-item {
+    padding: 10px;
+    border-bottom: 1px solid #eee;
+    cursor: pointer;
+}
+
+.chat-room-item:hover {
+    background-color: #f5f5f5;
+}
+
+.chat-room-item.active {
+    background-color: #e1f5fe;
+}
+
+.message {
+    margin-bottom: 15px;
+    padding: 10px;
+    border-radius: 5px;
+    max-width: 80%;
+}
+
+.message.user {
+    background-color: #e1f5fe;
+    margin-left: auto;
+}
+
+.message.admin {
+    background-color: #f0f0f0;
+}
+
+.message-time {
+    font-size: 12px;
+    color: #666;
+    text-align: right;
+}
+
+        /* Добавьте в CSS */
+.product-image img {
+    max-width: 100%;
+    max-height: 200px;
+    object-fit: contain;
+    margin-bottom: 10px;
+}
+
+#currentImagePreview img {
+    max-width: 100px;
+    max-height: 100px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+#productsTable img {
+    max-width: 50px;
+    max-height: 50px;
+    vertical-align: middle;
+}
+
+
+    </style>
+</head>
+<body>
+    <!-- Остальная часть HTML остается без изменений -->
+    <header class="admin-header">
+        <h1>Админ-панель Cosmetic Shop</h1>
+        <button class="logout-btn">Выйти</button>
+    </header>
+
+    <div class="admin-container">
+        <div class="admin-sidebar">
+            <h3>Меню администратора</h3>
+            <ul>
+                <li><a href="#" data-section="dashboard">Главная</a></li>
+                <li><a href="#" data-section="products">Товары</a></li>
+                <li><a href="#" data-section="categories">Категории</a></li>
+                <li><a href="#" data-section="orders">Заказы</a></li>
+                <li><a href="#" data-section="users">Пользователи</a></li>
+                <li><a href="#" data-section="stats">Статистика</a></li>
+                <li><a href="#" data-section="chats">Чаты с клиентами</a></li>
+
+            </ul>
+        </div>
+
+        <div class="admin-main">
+            <!-- Раздел Главная -->
+            <!-- Раздел Главная -->
+<div class="admin-section active" id="dashboard">
+    <h2>Главная панель</h2>
+    <div class="admin-card">
+        <h3>Быстрые действия</h3>
+        <button class="admin-btn" id="quickAddProduct">Добавить товар</button>
+        <button class="admin-btn" id="quickViewOrders">Просмотреть заказы</button>
+        <button class="admin-btn" id="quickViewStats">Аналитика продаж</button>
+    </div>
+
+    <div class="admin-card">
+        <h3>Статистика магазина</h3>
+        <div class="stats-grid">
+            <div class="stat-card">
+                <h3>Всего товаров</h3>
+                <div class="stat-value" id="total-products-count">0</div>
+            </div>
+            <div class="stat-card">
+                <h3>Новых заказов</h3>
+                <div class="stat-value" id="new-orders-count">0</div>
+            </div>
+            <div class="stat-card">
+                <h3>Пользователей</h3>
+                <div class="stat-value" id="total-users-count">0</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+            <!-- Раздел Чаты -->
+<div class="admin-section" id="chats">
+    <h2>Чаты с клиентами</h2>
+    <div class="admin-card">
+        <div class="chat-container">
+            <div class="chat-list" id="adminChatList">
+                <!-- Список чатов будет здесь -->
+            </div>
+            <div class="chat-messages" id="adminChatMessages">
+                <div class="messages-container" id="adminMessagesContainer">
+                    <!-- Сообщения будут здесь -->
+                </div>
+                <div class="message-input">
+                    <input type="text" id="adminChatMessageInput" placeholder="Введите сообщение...">
+                    <button id="adminSendMessageBtn">Отправить</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+            <!-- Раздел Товары -->
+           <!-- Раздел Товары -->
+<div class="admin-section" id="products">
+    <h2>Управление товарами</h2>
+    <div class="admin-card">
+        <div style="display: flex; justify-content: space-between; margin-bottom: 20px;">
+            <button class="admin-btn" id="addProductBtn">+ Добавить товар</button>
+            <div style="position: relative; display: flex; align-items: center;">
+                <div style="position: relative; flex-grow: 1;">
+                    <input type="text" id="searchInput" placeholder="Поиск товаров..."
+                           style="padding: 10px 35px 10px 15px; width: 100%; border-radius: 4px; border: 1px solid #ddd;">
+                    <span id="clearSearch" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%);
+                          cursor: pointer; color: #888; font-size: 18px; display: none;">&times;</span>
+                </div>
+                <button id="searchBtn" class="admin-btn" style="margin-left: 10px;">Поиск</button>
+            </div>
+        </div>
+<table id="productsTable">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Название</th>
+            <th>Категория</th>
+            <th>Цена</th>
+            <th>Количество на складе</th>
+            <th>Действия</th>
+        </tr>
+    </thead>
+    <tbody>
+        <!-- Данные будут заполняться через JavaScript -->
+    </tbody>
+</table>
+    </div>
+</div> <!-- Закрывающий тег для раздела товаров -->
+
+            <!-- Добавьте в index.html и admin.html -->
+<div id="chatModal" class="modal">
+    <div class="modal-content" style="max-width: 600px;">
+        <span class="close-btn">&times;</span>
+        <h2>Чат с поддержкой</h2>
+
+        <div id="chatContainer" style="height: 400px; overflow-y: auto; margin-bottom: 15px; border: 1px solid #eee; padding: 10px; border-radius: 5px;">
+            <!-- Сообщения будут здесь -->
+        </div>
+
+        <div style="display: flex;">
+            <input type="text" id="chatMessageInput" placeholder="Введите сообщение..." style="flex-grow: 1; padding: 10px; border: 1px solid #ddd; border-radius: 4px;">
+            <button id="sendChatMessageBtn" style="margin-left: 10px; padding: 10px 15px; background-color: #ffb6c1; color: white; border: none; border-radius: 4px; cursor: pointer;">Отправить</button>
+        </div>
+    </div>
+</div>
+
+<!-- Для клиента добавьте кнопку чата рядом с корзиной -->
+
+            <!-- Раздел Заказы -->
+<div class="admin-section" id="orders">
+    <h2>Управление заказами</h2>
+    <div class="admin-card">
+        <table id="ordersTable">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Пользователь</th>
+                    <th>Дата</th>
+                    <th>Сумма</th>
+                    <th>Статус</th>
+                    <th>Действия</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Данные будут заполняться через JavaScript -->
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Раздел Категории -->
+<div class="admin-section" id="categories">
+    <h2>Управление категориями</h2>
+    <div class="admin-card">
+        <div style="display: flex; justify-content: space-between; margin-bottom: 20px;">
+            <button class="admin-btn" id="addCategoryBtn">+ Добавить категорию</button>
+        </div>
+
+        <table id="categoriesTable">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Название</th>
+                    <th>Описание</th>
+                    <th>Действия</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Данные будут заполняться через JavaScript -->
+            </tbody>
+        </table>
+    </div>
+</div>
+
+            <!-- Раздел Статистика -->
+<div class="admin-section" id="stats">
+    <h2>Статистика магазина</h2>
+
+    <!-- Карточки с основными метриками -->
+    <div class="stats-grid">
+        <!-- Всего заказов -->
+        <div class="stat-card">
+            <h3>Всего заказов</h3>
+            <div class="stat-value" id="total-orders">0</div>
+
+        </div>
+
+        <!-- Новые заказы (сегодня) -->
+        <div class="stat-card">
+            <h3>Новые заказы</h3>
+            <div class="stat-value" id="new-orders">0</div>
+        </div>
+
+        <!-- Пользователи -->
+        <div class="stat-card">
+            <h3>Пользователи</h3>
+            <div class="stat-value" id="total-users">0</div>
+        </div>
+
+        <!-- Товары -->
+        <div class="stat-card">
+            <h3>Товары</h3>
+            <div class="stat-value" id="total-products">0</div>
+        </div>
+    </div>
+
+    <!-- Графики и детализация -->
+    <div class="admin-card">
+        <h3>Статусы заказов</h3>
+        <div class="status-bars" id="order-status-chart">
+            <!-- Динамически заполнится через JS -->
+        </div>
+    </div>
+
+    <div class="admin-card">
+        <h3>Популярные товары</h3>
+        <table id="top-products">
+            <thead>
+                <tr>
+                    <th>Товар</th>
+                    <th>Продажи</th>
+                    <th>Доход</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Заполнится через JS -->
+            </tbody>
+        </table>
+    </div>
+</div>
+
+
+<!-- Раздел Пользователи -->
+<div class="admin-section" id="users">
+    <h2>Управление пользователями</h2>
+    <div class="admin-card">
+        <div style="display: flex; justify-content: flex-end; margin-bottom: 20px;">
+            <div style="position: relative; display: flex; align-items: center;">
+                <div style="position: relative; flex-grow: 1;">
+                    <input type="text" id="searchUsersInput" placeholder="Поиск пользователей..."
+                           style="padding: 10px 35px 10px 15px; width: 100%; border-radius: 4px; border: 1px solid #ddd;">
+                    <span id="clearUsersSearch" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%);
+                          cursor: pointer; color: #888; font-size: 18px; display: none;">&times;</span>
+                </div>
+                <button id="searchUsersBtn" class="admin-btn" style="margin-left: 10px;">Поиск</button>
+            </div>
+        </div>
+        <table id="usersTable">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Имя пользователя</th>
+                    <th>Email</th>
+                    <th>Имя</th>
+                    <th>Фамилия</th>
+                    <th>Роль</th>
+                    <th>Дата регистрации</th>
+                    <th>Действия</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Данные будут заполняться через JavaScript -->
+            </tbody>
+        </table>
+    </div>
+</div>
+
+
+
+    <!-- Модальное окно добавления товара -->
+     <div id="addProductModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Добавить новый товар</h2>
+                <button class="close-btn">&times;</button>
+            </div>
+            <form id="addProductForm">
+                <div class="form-group">
+                    <label for="productName">Название товара</label>
+                    <input type="text" id="productName" name="name" required>
+                </div>
+                <div class="form-group">
+                    <label for="productCategory">Категория</label>
+                    <select id="productCategory" name="category" required>
+                        <option value="">Выберите категорию</option>
+                        <!-- Категории будут загружены динамически -->
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="productPrice">Цена (BYN)</label>
+                    <input type="number" id="productPrice" name="price" min="0" step="0.01" required>
+                </div>
+                <div class="form-group">
+                    <label for="productDescription">Описание</label>
+                    <textarea id="productDescription" name="description"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="productStock">Количество на складе</label>
+                    <input type="number" id="productStock" name="stock" min="0" value="0">
+                </div>
+
+                <div class="form-group">
+                    <label for="productImage">Изображение товара</label>
+                    <input type="file" id="productImage" name="image" accept="image/*">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary close-btn">Отмена</button>
+                    <button type="submit" class="btn btn-primary">Сохранить товар</button>
+                </div>
+            </form>
+        </div>
+    </div>
+            <!-- Модальное окно редактирования товара -->
+<div id="editProductModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>Редактировать товар</h2>
+            <button class="close-btn edit-close-btn">&times;</button>
+        </div>
+        <form id="editProductForm">
+            <input type="hidden" id="editProductId">
+            <div class="form-group">
+                <label for="editProductName">Название товара</label>
+                <input type="text" id="editProductName" required>
+            </div>
+            <div class="form-group">
+                <label for="editProductCategory">Категория</label>
+               <select id="editProductCategory" required>
+                    <option value="">Выберите категорию</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="editProductPrice">Цена (BYN)</label>
+                <input type="number" id="editProductPrice" step="0.01" required>
+            </div>
+            <div class="form-group">
+                <label for="editProductDescription">Описание</label>
+                <textarea id="editProductDescription"></textarea>
+            </div>
+            <div class="form-group">
+                <label for="editProductStock">Остаток на складе</label>
+                <input type="number" id="editProductStock" required>
+            </div>
+
+            <div class="form-group">
+                 <label for="editProductImage">Изображение товара</label>
+                <input type="file" id="editProductImage" name="image" accept="image/*">
+                <div id="currentImagePreview" style="margin-top: 10px;"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary edit-close-btn">Отмена</button>
+                <button type="submit" class="btn btn-primary">Сохранить изменения</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+             <!-- Модальное окно добавления/редактирования категории -->
+    <div id="categoryModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="categoryModalTitle">Добавить новую категорию</h2>
+                <button class="close-btn category-close-btn">&times;</button>
+            </div>
+            <form id="categoryForm">
+                <input type="hidden" id="categoryId">
+                <div class="form-group">
+                    <label for="categoryName">Название категории</label>
+                    <input type="text" id="categoryName" required>
+                </div>
+                <div class="form-group">
+                    <label for="categoryDescription">Описание категории</label>
+                    <textarea id="categoryDescription"></textarea>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary category-close-btn">Отмена</button>
+                    <button type="submit" class="btn btn-primary">Сохранить</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+
+     <script>
+function formatDateBY(dateString) {
+    const date = new Date(dateString);
+    // Добавляем 3 часа к дате, чтобы компенсировать разницу
+    date.setHours(date.getHours() + 3);
+
+    const options = {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+    };
+
+    return date.toLocaleString('ru-RU', options).replace(',', '');
+}
+
+function formatDate(dateString) {
+    const date = new Date(dateString);
+    const day = date.getDate().toString().padStart(2, '0');
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    const year = date.getFullYear();
+    return `${day}.${month}.${year}`;
+}
+
+        // Проверка прав при загрузке страницы
+        document.addEventListener('DOMContentLoaded', async () => {
+            try {
+                // Проверка прав администратора
+                const response = await fetch('/check-admin');
+                if (!response.ok) throw new Error('Ошибка сети');
+
+                const data = await response.json();
+                if (!data.is_admin) window.location.href = '/';
+
+                // Загружаем товары и категории при открытии раздела
+                loadProducts();
+                loadCategories();
+                loadCategoriesToSelects(); // Для select в форме добавления товара
+
+            } catch (error) {
+                console.error('Error:', error);
+                window.location.href = '/';
+            }
+        });
+
+        // Переключение между разделами
+        document.querySelectorAll('[data-section]').forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const sectionId = e.target.getAttribute('data-section');
+
+                // Скрываем все разделы
+                document.querySelectorAll('.admin-section').forEach(section => {
+                    section.classList.remove('active');
+                });
+
+                // Показываем выбранный раздел
+                document.getElementById(sectionId).classList.add('active');
+
+                // Если открыли раздел товаров - обновляем список
+                if (sectionId === 'products') {
+                    loadProducts();
+                }
+
+                // Если открыли раздел категорий - обновляем список
+                if (sectionId === 'categories') {
+                    loadCategories();
+                }
+
+                 if (sectionId === 'orders') {
+                    loadOrders();
+                }
+            });
+        });
+
+        // Выход из системы
+        document.querySelector('.logout-btn').addEventListener('click', async () => {
+            try {
+                const response = await fetch('/logout', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    credentials: 'include'
+                });
+
+                if (response.ok) {
+                    // Очищаем localStorage
+                    localStorage.clear();
+                    window.location.href = '/';
+                }
+            } catch (error) {
+                console.error('Ошибка при выходе:', error);
+                alert('Произошла ошибка при выходе');
+            }
+        });
+
+        // Управление модальными окнами
+        const modals = {
+            product: document.getElementById('addProductModal'),
+            editProduct: document.getElementById('editProductModal'),
+            category: document.getElementById('categoryModal')
+        };
+
+        // Кнопки открытия модальных окон
+        document.getElementById('addProductBtn')?.addEventListener('click', () => {
+    modals.product.style.display = 'block';
+    loadCategoriesToSelects(); // Добавьте эту строку
+});
+        document.getElementById('addCategoryBtn')?.addEventListener('click', () => {
+            document.getElementById('categoryModalTitle').textContent = 'Добавить новую категорию';
+            document.getElementById('categoryId').value = '';
+            document.getElementById('categoryName').value = '';
+            document.getElementById('categoryDescription').value = '';
+            modals.category.style.display = 'block';
+        });
+
+        // Кнопки закрытия модальных окон
+        document.querySelectorAll('.close-btn').forEach(btn => btn.addEventListener('click', () => {
+            Object.values(modals).forEach(modal => modal.style.display = 'none');
+        }));
+
+        document.querySelectorAll('.edit-close-btn').forEach(btn => btn.addEventListener('click', () => {
+            modals.editProduct.style.display = 'none';
+        }));
+
+        document.querySelectorAll('.category-close-btn').forEach(btn => btn.addEventListener('click', () => {
+            modals.category.style.display = 'none';
+        }));
+
+        // Закрытие модальных окон при клике вне их
+        window.addEventListener('click', (e) => {
+            if (e.target.classList.contains('modal')) {
+                Object.values(modals).forEach(modal => modal.style.display = 'none');
+            }
+        });
+
+        // Загрузка категорий для select в форме добавления товара
+        async function loadCategoriesToSelects() {
+    try {
+        const response = await fetch('/api/categories');
+        if (!response.ok) throw new Error('Ошибка загрузки категорий');
+
+        const data = await response.json();
+        const selects = [document.getElementById('productCategory'), document.getElementById('editProductCategory')];
+
+        selects.forEach(select => {
+            if (!select) return;
+
+            // Удаляем старые категории, оставляя первый <option>
+            while (select.options.length > 1) {
+                select.remove(1);
+            }
+
+            if (data.success && data.categories) {
+                data.categories.forEach(category => {
+                    const option = document.createElement('option');
+                    option.value = category.name;
+                    option.textContent = category.name;
+                    select.appendChild(option);
+                });
+            }
+        });
+    } catch (error) {
+        console.error('Ошибка загрузки категорий:', error);
+    }
+}
+
+        // Загрузка списка категорий
+async function loadCategories() {
+    try {
+        const response = await fetch('/api/categories');
+        if (!response.ok) throw new Error('Ошибка загрузки категорий');
+
+        const data = await response.json();
+        const tbody = document.querySelector('#categoriesTable tbody');
+
+        if (data.success && data.categories) {
+            if (data.categories.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="4" style="text-align: center;">Нет категорий</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = data.categories.map(category => `
+                <tr>
+                    <td>${category.id}</td>
+                    <td>${category.name}</td>
+                    <td>${category.description || ''}</td>
+                    <td>
+                        <button class="admin-btn edit-category-btn" data-id="${category.id}">Редактировать</button>
+                        <button class="admin-btn delete-category-btn" data-id="${category.id}">Удалить</button>
+                    </td>
+                </tr>
+            `).join('');
+
+            // Добавляем обработчики для кнопок редактирования и удаления
+            document.querySelectorAll('.edit-category-btn').forEach(btn => {
+                btn.addEventListener('click', async (e) => {
+                    const id = e.target.getAttribute('data-id');
+                    try {
+                        const res = await fetch(`/api/categories/${id}`);
+                        const result = await res.json();
+
+                        if (res.ok && result.category) {
+                            document.getElementById('categoryModalTitle').textContent = 'Редактировать категорию';
+                            document.getElementById('categoryId').value = result.category.id;
+                            document.getElementById('categoryName').value = result.category.name;
+                            document.getElementById('categoryDescription').value = result.category.description || '';
+                            modals.category.style.display = 'block';
+                        } else {
+                            alert('Ошибка получения данных категории');
+                        }
+                    } catch (err) {
+                        console.error(err);
+                        alert('Ошибка при запросе категории');
+                    }
+                });
+            });
+
+            document.querySelectorAll('.delete-category-btn').forEach(btn => {
+                btn.addEventListener('click', async (e) => {
+                    const id = e.target.getAttribute('data-id');
+                    if (confirm('Вы уверены, что хотите удалить эту категорию? Все товары в этой категории будут перемещены в категорию "Без категории".')) {
+                        try {
+                            const response = await fetch(`/api/categories/${id}`, {
+                                method: 'DELETE'
+                            });
+
+                            if (response.ok) {
+                                alert('Категория успешно удалена');
+                                loadCategories();
+                                loadCategoriesToSelects(); // Обновляем select в форме товаров
+                            } else {
+                                const error = await response.json();
+                                alert(error.error || 'Ошибка при удалении категории');
+                            }
+                        } catch (error) {
+                            console.error('Ошибка:', error);
+                            alert('Произошла ошибка');
+                        }
+                    }
+                });
+            });
+        }
+    } catch (error) {
+        console.error('Ошибка загрузки категорий:', error);
+        const tbody = document.querySelector('#categoriesTable tbody');
+        tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: red;">Ошибка загрузки категорий</td></tr>';
+    }
+}
+
+        // Обработка формы категории
+        document.getElementById('categoryForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const id = document.getElementById('categoryId').value;
+            const name = document.getElementById('categoryName').value.trim();
+            const description = document.getElementById('categoryDescription').value.trim();
+
+            if (!name) {
+                alert('Пожалуйста, укажите название категории');
+                return;
+            }
+
+            const categoryData = { name, description };
+
+            try {
+                let response;
+                if (id) {
+                    // Редактирование существующей категории
+                    response = await fetch(`/api/categories/${id}`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(categoryData)
+                    });
+                } else {
+                    // Добавление новой категории
+                    response = await fetch('/api/categories', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(categoryData)
+                    });
+                }
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    alert(id ? 'Категория успешно обновлена' : 'Категория успешно добавлена');
+                    modals.category.style.display = 'none';
+                    loadCategories();
+                    loadCategoriesToSelects(); // Обновляем select в форме товаров
+                } else {
+                    throw new Error(result.error || (id ? 'Не удалось обновить категорию' : 'Не удалось добавить категорию'));
+                }
+            } catch (error) {
+                console.error('Ошибка:', error);
+                alert(error.message);
+            }
+        });
+
+        // Загрузка товаров
+        async function loadProducts() {
+            try {
+                const response = await fetch('/api/products');
+                const data = await response.json();
+
+                if (response.ok) {
+                    renderProducts(data.products || []);
+                } else {
+                    console.error('Ошибка загрузки товаров:', data.error);
+                }
+            } catch (error) {
+                console.error('Ошибка:', error);
+            }
+        }
+
+        // Отображение товаров в таблице
+       function renderProducts(products) {
+    const tbody = document.querySelector('#productsTable tbody');
+    if (!tbody) return;
+
+    tbody.innerHTML = products.map(product => `
+        <tr>
+            <td>${product.id}</td>
+            <td>${product.name}</td>
+            <td>${product.category}</td>
+            <td>${product.price.toFixed(2)} BYN</td>
+            <td>${product.stock}</td>
+            <td>
+                <button class="admin-btn edit-btn" data-id="${product.id}">Редактировать</button>
+                <button class="admin-btn delete-btn" data-id="${product.id}">Удалить</button>
+            </td>
+        </tr>
+    `).join('');
+
+    addEditDeleteHandlers();
+}
+
+// В функции openEditModal добавьте:
+function openEditModal(product) {
+    document.getElementById('editProductId').value = product.id;
+    document.getElementById('editProductName').value = product.name;
+    document.getElementById('editProductCategory').value = product.category;
+    document.getElementById('editProductPrice').value = product.price;
+    document.getElementById('editProductDescription').value = product.description || '';
+    document.getElementById('editProductStock').value = product.stock;
+
+    // Показываем текущее изображение
+    const preview = document.getElementById('currentImagePreview');
+    preview.innerHTML = '';
+if (product.image) {
+    preview.innerHTML = `
+        <div>Текущее изображение:</div>
+        <img src="${product.image_url}" alt="${product.name}">
+    `;
+}
+
+    modals.editProduct.style.display = 'block';
+}
+
+// Обновите обработчик формы добавления товара
+document.getElementById('addProductForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const formData = new FormData();
+    formData.append('name', document.getElementById('productName').value.trim());
+    formData.append('category', document.getElementById('productCategory').value);
+    formData.append('price', parseFloat(document.getElementById('productPrice').value));
+    formData.append('description', document.getElementById('productDescription').value.trim());
+    formData.append('stock', parseInt(document.getElementById('productStock').value) || 0);
+
+    const imageInput = document.getElementById('productImage');
+    if (imageInput.files[0]) {
+        formData.append('image', imageInput.files[0]);
+    }
+
+    try {
+        const response = await fetch('/api/products', {
+            method: 'POST',
+            body: formData
+        });
+
+        const result = await response.json();
+        if (response.ok) {
+            alert('Товар успешно добавлен!');
+            modals.product.style.display = 'none';
+            document.getElementById('addProductForm').reset();
+            loadProducts();
+        } else {
+            throw new Error(result.error || 'Не удалось добавить товар');
+        }
+    } catch (error) {
+        console.error('Ошибка:', error);
+        alert(error.message);
+    }
+});
+
+// Обновите обработчик формы редактирования товара
+document.getElementById('editProductForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const formData = new FormData();
+    formData.append('name', document.getElementById('editProductName').value);
+    formData.append('category', document.getElementById('editProductCategory').value);
+    formData.append('price', parseFloat(document.getElementById('editProductPrice').value));
+    formData.append('description', document.getElementById('editProductDescription').value);
+    formData.append('stock', parseInt(document.getElementById('editProductStock').value));
+
+    const imageInput = document.getElementById('editProductImage');
+    if (imageInput.files[0]) {
+        formData.append('image', imageInput.files[0]);
+    }
+
+    try {
+        const res = await fetch(`/api/products/${document.getElementById('editProductId').value}`, {
+            method: 'PUT',
+            body: formData
+        });
+
+        const result = await res.json();
+        if (res.ok) {
+            alert('Товар обновлён');
+            modals.editProduct.style.display = 'none';
+            loadProducts();
+        } else {
+            alert(result.error || 'Ошибка обновления');
+        }
+    } catch (err) {
+        console.error(err);
+        alert('Ошибка при обновлении');
+    }
+});
+        // Обработчики кнопок редактирования/удаления товаров
+        function addEditDeleteHandlers() {
+            document.querySelectorAll('.edit-btn').forEach(btn => {
+                btn.addEventListener('click', async (e) => {
+                    const id = e.target.getAttribute('data-id');
+
+                    try {
+                        const res = await fetch(`/api/products/${id}`);
+                        const result = await res.json();
+
+                        if (res.ok && result.product) {
+                            openEditModal(result.product);
+                        } else {
+                            alert('Ошибка получения данных товара');
+                        }
+                    } catch (err) {
+                        console.error(err);
+                        alert('Ошибка при запросе товара');
+                    }
+                });
+            });
+
+            document.querySelectorAll('.delete-btn').forEach(btn => {
+                btn.addEventListener('click', async (e) => {
+                    const productId = e.target.getAttribute('data-id');
+                    if (confirm('Вы уверены, что хотите удалить этот товар?')) {
+                        try {
+                            const response = await fetch(`/api/products/${productId}`, {
+                                method: 'DELETE'
+                            });
+
+                            if (response.ok) {
+                                alert('Товар успешно удален');
+                                loadProducts();
+                            } else {
+                                const error = await response.json();
+                                alert(error.error || 'Ошибка при удалении товара');
+                            }
+                        } catch (error) {
+                            console.error('Ошибка:', error);
+                            alert('Произошла ошибка');
+                        }
+                    }
+                });
+            });
+        }
+
+        // Открытие модального окна редактирования товара
+function openEditModal(product) {
+    document.getElementById('editProductId').value = product.id;
+    document.getElementById('editProductName').value = product.name;
+    document.getElementById('editProductCategory').value = product.category; // ЗДЕСЬ
+    document.getElementById('editProductPrice').value = product.price;
+    document.getElementById('editProductDescription').value = product.description || '';
+    document.getElementById('editProductStock').value = product.stock;
+    modals.editProduct.style.display = 'block';
+}
+
+        // Редактирование товара
+        document.getElementById('editProductForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const id = document.getElementById('editProductId').value;
+            const updatedProduct = {
+                name: document.getElementById('editProductName').value,
+                category: document.getElementById('editProductCategory').value,
+                price: parseFloat(document.getElementById('editProductPrice').value),
+                description: document.getElementById('editProductDescription').value,
+                stock: parseInt(document.getElementById('editProductStock').value)
+            };
+
+            try {
+                const res = await fetch(`/api/products/${id}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(updatedProduct)
+                });
+
+                const result = await res.json();
+                if (res.ok) {
+                    alert('Товар обновлён');
+                    modals.editProduct.style.display = 'none';
+                    loadProducts();
+                } else {
+                    alert(result.error || 'Ошибка обновления');
+                }
+            } catch (err) {
+                console.error(err);
+                alert('Ошибка при обновлении');
+            }
+        });
+
+        // Поиск товаров
+        const searchInput = document.getElementById('searchInput');
+        const searchBtn = document.getElementById('searchBtn');
+        const clearSearch = document.getElementById('clearSearch');
+        let allProducts = [];
+
+        // Показываем/скрываем крестик при вводе текста
+        searchInput.addEventListener('input', function() {
+            clearSearch.style.display = this.value ? 'block' : 'none';
+        });
+
+        // Очистка поиска
+        clearSearch.addEventListener('click', function() {
+            searchInput.value = '';
+            clearSearch.style.display = 'none';
+            renderProducts(allProducts); // Показываем все товары
+        });
+
+        // При загрузке товаров сохраняем их
+        async function loadProducts() {
+            try {
+                const response = await fetch('/api/products');
+                if (!response.ok) throw new Error('Ошибка загрузки товаров');
+
+                const data = await response.json();
+                if (data.success && data.products) {
+                    allProducts = data.products; // Сохраняем все товары
+                    renderProducts(data.products);
+                } else {
+                    throw new Error(data.error || 'Не удалось загрузить товары');
+                }
+            } catch (error) {
+                console.error('Ошибка:', error);
+                alert('Произошла ошибка при загрузке товаров: ' + error.message);
+            }
+        }
+
+        // Функция поиска товаров
+        function searchProducts() {
+            const searchTerm = searchInput.value.toLowerCase().trim();
+
+            if (searchTerm === '') {
+                renderProducts(allProducts);
+                return;
+            }
+
+            const filteredProducts = allProducts.filter(product =>
+                product.name.toLowerCase().includes(searchTerm) ||
+                product.category.toLowerCase().includes(searchTerm) ||
+                (product.description && product.description.toLowerCase().includes(searchTerm))
+            );
+
+            renderProducts(filteredProducts);
+        }
+
+        // Обработчики событий для поиска
+        searchBtn.addEventListener('click', searchProducts);
+        searchInput.addEventListener('keyup', (e) => {
+            if (e.key === 'Enter') {
+                searchProducts();
+            }
+        });
+
+       // В файле script.js обновите функции для работы с пользователями:
+
+async function loadUsers() {
+    try {
+        const response = await fetch('/api/users');
+        if (!response.ok) throw new Error('Ошибка загрузки пользователей');
+
+        const data = await response.json();
+        if (data.success && data.users) {
+            allUsers = data.users;
+            renderUsers(data.users);
+        } else {
+            throw new Error(data.error || 'Не удалось загрузить пользователей');
+        }
+    } catch (error) {
+        console.error('Ошибка:', error);
+        const tbody = document.querySelector('#usersTable tbody');
+        tbody.innerHTML = '<tr><td colspan="8" style="text-align: center; color: red;">Ошибка загрузки пользователей: ' + error.message + '</td></tr>';
+    }
+}
+
+function renderUsers(users) {
+    const tbody = document.querySelector('#usersTable tbody');
+    if (!tbody) return;
+
+    tbody.innerHTML = users.map(user => `
+        <tr>
+            <td>${user.id}</td>
+            <td>${user.username}</td>
+            <td>${user.email}</td>
+            <td>${user.first_name}</td>
+            <td>${user.last_name}</td>
+            <td>${user.is_admin ? 'Администратор' : 'Пользователь'}</td>
+            <td>${formatDate(user.created_at)}</td>
+            <td>
+                <button class="admin-btn delete-user-btn" data-id="${user.id}">Удалить</button>
+            </td>
+        </tr>
+    `).join('');
+
+    // Добавляем обработчики для кнопок удаления
+    addUserDeleteHandlers();
+}
+
+function addUserDeleteHandlers() {
+    document.querySelectorAll('.delete-user-btn').forEach(btn => {
+        btn.addEventListener('click', async (e) => {
+            const userId = e.target.getAttribute('data-id');
+            if (confirm('Вы уверены, что хотите удалить этого пользователя?')) {
+                try {
+                    const response = await fetch(`/api/users/${userId}`, {
+                        method: 'DELETE'
+                    });
+
+                    if (response.ok) {
+                        alert('Пользователь успешно удален');
+                        loadUsers();
+                    } else {
+                        const error = await response.json();
+                        alert(error.error || 'Ошибка при удалении пользователя');
+                    }
+                } catch (error) {
+                    console.error('Ошибка:', error);
+                    alert('Произошла ошибка');
+                }
+            }
+        });
+    });
+}
+
+// Добавьте вызов loadUsers() при открытии раздела пользователей
+document.querySelector('[data-section="users"]').addEventListener('click', loadUsers);
+
+// Поиск пользователей (остается без изменений)
+let allUsers = [];
+
+function searchUsers() {
+    const searchTerm = document.getElementById('searchUsersInput').value.toLowerCase().trim();
+
+    if (searchTerm === '') {
+        renderUsers(allUsers);
+        return;
+    }
+
+    const filteredUsers = allUsers.filter(user =>
+        user.username.toLowerCase().includes(searchTerm) ||
+        user.email.toLowerCase().includes(searchTerm) ||
+        user.first_name.toLowerCase().includes(searchTerm) ||
+        user.last_name.toLowerCase().includes(searchTerm)
+    );
+
+    renderUsers(filteredUsers);
+}
+
+// Обработчики событий для поиска
+document.getElementById('searchUsersBtn').addEventListener('click', searchUsers);
+document.getElementById('searchUsersInput').addEventListener('keyup', (e) => {
+    if (e.key === 'Enter') {
+        searchUsers();
+    }
+});
+
+// Очистка поиска
+document.getElementById('clearUsersSearch').addEventListener('click', function() {
+    document.getElementById('searchUsersInput').value = '';
+    this.style.display = 'none';
+    renderUsers(allUsers);
+});
+
+// Показываем/скрываем крестик при вводе текста
+document.getElementById('searchUsersInput').addEventListener('input', function() {
+    document.getElementById('clearUsersSearch').style.display = this.value ? 'block' : 'none';
+});
+
+async function loadOrders() {
+    try {
+        const response = await fetch('/api/orders');
+        const data = await response.json();
+
+        if (data.success && data.orders) {
+            const tbody = document.querySelector('#ordersTable tbody');
+            tbody.innerHTML = data.orders.map(order => `
+                <tr>
+                    <td>${order.id}</td>
+                    <td>${order.username || '—'}</td>
+                    <td>${formatDateBY(order.created_at)}</td>
+
+                    <td>${order.total.toFixed(2)} BYN</td>
+                    <td>
+                        <select class="order-status" data-order-id="${order.id}">
+                            <option value="processing" ${order.status === 'processing' ? 'selected' : ''}>Обработка</option>
+                            <option value="shipped" ${order.status === 'shipped' ? 'selected' : ''}>Отправлен</option>
+                            <option value="delivered" ${order.status === 'delivered' ? 'selected' : ''}>Доставлен</option>
+                            <option value="cancelled" ${order.status === 'cancelled' ? 'selected' : ''}>Отменен</option>
+                        </select>
+                    </td>
+                    <td>
+                        <button class="admin-btn view-order-btn" data-order-id="${order.id}">Просмотр</button>
+                        <div class="order-items" style="display: none;">
+                            ${order.items.map(item => `
+                                <div>${item.product_name} - ${item.quantity} шт. × ${item.price.toFixed(2)} BYN</div>
+                            `).join('')}
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+
+            // Обработчик просмотра товаров в заказе
+            document.querySelectorAll('.view-order-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const itemsDiv = e.target.nextElementSibling;
+                    itemsDiv.style.display = itemsDiv.style.display === 'none' ? 'block' : 'none';
+                });
+            });
+
+            // Обработчик изменения статуса (остаётся без изменений)
+            document.querySelectorAll('.order-status').forEach(select => {
+                select.addEventListener('change', async (e) => {
+                    const orderId = e.target.getAttribute('data-order-id');
+                    const newStatus = e.target.value;
+
+                    try {
+                        const response = await fetch(`/api/orders/${orderId}`, {
+                            method: 'PUT',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({ status: newStatus })
+                        });
+
+                        if (!response.ok) {
+                            throw new Error('Ошибка обновления статуса');
+                        }
+                        alert('Статус заказа обновлен');
+                    } catch (error) {
+                        console.error('Ошибка:', error);
+                        alert('Не удалось обновить статус заказа');
+                    }
+                });
+            });
+        }
+    } catch (error) {
+        console.error('Ошибка загрузки заказов:', error);
+    }
+}
+
+         // Функция загрузки статистики
+async function loadStats() {
+    try {
+        const response = await fetch('/api/stats');
+        const data = await response.json();
+
+        if (data.success) {
+            // Основные метрики
+            document.getElementById('total-orders').textContent = data.total_orders || 0;
+            document.getElementById('new-orders').textContent = data.new_orders || 0;
+            document.getElementById('total-users').textContent = data.total_users || 0;
+            document.getElementById('total-products').textContent = data.total_products || 0;
+
+            // Статусы заказов
+            const statusChart = document.getElementById('order-status-chart');
+            statusChart.innerHTML = '';
+            if (data.order_statuses) {
+                const total = Object.values(data.order_statuses).reduce((a, b) => a + b, 1);
+                for (const [status, count] of Object.entries(data.order_statuses)) {
+                    const width = (count / total) * 100;
+                    statusChart.innerHTML += `
+                        <div class="status-bar">
+                            <div class="status-bar-fill" style="width: ${width}%"></div>
+                            <div class="status-label">
+                                <span>${status}</span>
+                                <span>${count} (${Math.round(width)}%)</span>
+                            </div>
+                        </div>
+                    `;
+                }
+            }
+
+            // Популярные товары
+            const topProducts = document.querySelector('#top-products tbody');
+            topProducts.innerHTML = '';
+            if (data.top_products) {
+                data.top_products.forEach(product => {
+                    topProducts.innerHTML += `
+                        <tr>
+                            <td>${product.name}</td>
+                            <td>${product.sales}</td>
+                            <td>${product.revenue.toFixed(2)} BYN</td>
+                        </tr>
+                    `;
+                });
+            }
+
+            // График активности (используем Chart.js)
+            if (window.Chart && data.activity) {
+                const ctx = document.getElementById('activity-chart').getContext('2d');
+                new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: data.activity.dates,
+                        datasets: [
+                            {
+                                label: 'Заказы',
+                                data: data.activity.orders,
+                                borderColor: '#e91e63',
+                                backgroundColor: 'rgba(233, 30, 99, 0.1)',
+                                tension: 0.3,
+                                fill: true
+                            },
+                            {
+                                label: 'Регистрации',
+                                data: data.activity.registrations,
+                                borderColor: '#4CAF50',
+                                backgroundColor: 'rgba(76, 175, 80, 0.1)',
+                                tension: 0.3,
+                                fill: true
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: { position: 'top' }
+                        }
+                    }
+                });
+            }
+        }
+    } catch (error) {
+        console.error('Ошибка загрузки статистики:', error);
+    }
+}
+
+// Добавьте вызов при открытии раздела
+document.querySelector('[data-section="stats"]').addEventListener('click', loadStats);
+
+         // Добавляем в начало скрипта, где объявлены другие функции
+async function loadDashboardStats() {
+    try {
+        const response = await fetch('/api/stats');
+        const data = await response.json();
+
+        if (data.success) {
+            document.getElementById('total-products-count').textContent = data.total_products || 0;
+            document.getElementById('new-orders-count').textContent = data.new_orders || 0;
+            document.getElementById('total-users-count').textContent = data.total_users || 0;
+        }
+    } catch (error) {
+        console.error('Ошибка загрузки статистики:', error);
+    }
+}
+
+// Обработчики быстрых действий
+document.getElementById('quickAddProduct')?.addEventListener('click', () => {
+    // Переключаемся на раздел товаров и открываем модальное окно добавления
+    document.querySelectorAll('.admin-section').forEach(section => {
+        section.classList.remove('active');
+    });
+    document.getElementById('products').classList.add('active');
+
+    // Открываем модальное окно добавления товара
+    modals.product.style.display = 'block';
+    loadCategoriesToSelects();
+});
+
+document.getElementById('quickViewOrders')?.addEventListener('click', () => {
+    // Переключаемся на раздел заказов
+    document.querySelectorAll('.admin-section').forEach(section => {
+        section.classList.remove('active');
+    });
+    document.getElementById('orders').classList.add('active');
+    loadOrders();
+});
+
+document.getElementById('quickViewStats')?.addEventListener('click', () => {
+    // Переключаемся на раздел статистики
+    document.querySelectorAll('.admin-section').forEach(section => {
+        section.classList.remove('active');
+    });
+    document.getElementById('stats').classList.add('active');
+    loadStats();
+});
+
+// Обновляем обработчик переключения разделов, чтобы загружать статистику при открытии главной
+document.querySelector('[data-section="dashboard"]').addEventListener('click', () => {
+    // ... существующий код ...
+    loadDashboardStats();
+});
+
+// Загружаем статистику при загрузке страницы, если открыта главная
+document.addEventListener('DOMContentLoaded', () => {
+    if (document.getElementById('dashboard').classList.contains('active')) {
+        loadDashboardStats();
+    }
+});
+
+        let currentChatRoomId = null;
+        let chatUpdateInterval = null;
+
+        // Загрузка списка чатов
+        async function loadAdminChats() {
+            try {
+                const response = await fetch('/api/chat/rooms');
+                const data = await response.json();
+                const list = document.getElementById('adminChatList');
+                list.innerHTML = '';
+
+                if (data.success && data.rooms) {
+                    data.rooms.forEach(room => {
+                        const div = document.createElement('div');
+                        div.className = 'chat-room-item';
+                        div.dataset.roomId = room.id;
+                        div.innerHTML = `
+                            <div>${room.username || 'Анонимный пользователь'}</div>
+                            <small>${room.unread_count > 0 ? `<span style="color: red;">Новых: ${room.unread_count}</span>` : 'Нет новых сообщений'}</small>
+                        `;
+
+                        div.addEventListener('click', () => {
+                            // Убираем выделение у всех чатов
+                            document.querySelectorAll('.chat-room-item').forEach(item => {
+                                item.classList.remove('active');
+                            });
+                            // Выделяем текущий чат
+                            div.classList.add('active');
+                            // Загружаем сообщения
+                            loadAdminMessages(room.id);
+                        });
+
+                        list.appendChild(div);
+                    });
+
+                    // Если есть чаты, но ни один не выбран - выбираем первый
+                    if (data.rooms.length > 0 && !currentChatRoomId) {
+                        const firstChat = list.querySelector('.chat-room-item');
+                        if (firstChat) {
+                            firstChat.click();
+                        }
+                    }
+                } else {
+                    list.innerHTML = '<div style="padding: 10px; text-align: center;">Нет активных чатов</div>';
+                }
+            } catch (error) {
+                console.error('Ошибка загрузки чатов:', error);
+                const list = document.getElementById('adminChatList');
+                list.innerHTML = '<div style="padding: 10px; text-align: center; color: red;">Ошибка загрузки чатов</div>';
+            }
+        }
+
+        // Загрузка сообщений чата
+        async function loadAdminMessages(roomId) {
+            try {
+                currentChatRoomId = roomId;
+                const response = await fetch(`/api/chat/rooms/${roomId}/messages`);
+                const data = await response.json();
+                const container = document.getElementById('adminMessagesContainer');
+
+                if (data.success && data.messages) {
+                    container.innerHTML = '';
+
+                    data.messages.forEach(msg => {
+                        const messageDiv = document.createElement('div');
+                        messageDiv.className = `message ${msg.is_admin ? 'admin' : 'user'}`;
+                        messageDiv.innerHTML = `
+                            <div>${msg.sender_name}: ${msg.message}</div>
+                            <div class="message-time">${formatDateBY(msg.timestamp)}</div>
+                        `;
+                        container.appendChild(messageDiv);
+                    });
+
+                    // Прокручиваем вниз
+                    container.scrollTop = container.scrollHeight;
+
+                    // Помечаем сообщения как прочитанные
+                    await fetch(`/api/chat/rooms/${roomId}/mark-read`, { method: 'POST' });
+
+                    // Обновляем список чатов, чтобы убрать счетчик непрочитанных
+                    loadAdminChats();
+                }
+            } catch (error) {
+                console.error('Ошибка загрузки сообщений:', error);
+            }
+        }
+
+        // Отправка сообщения
+        async function sendAdminMessage() {
+            const input = document.getElementById('adminChatMessageInput');
+            const message = input.value.trim();
+
+            if (!message || !currentChatRoomId) return;
+
+            try {
+                const response = await fetch(`/api/chat/rooms/${currentChatRoomId}/messages`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    input.value = '';
+                    loadAdminMessages(currentChatRoomId);
+                } else {
+                    alert('Ошибка отправки сообщения: ' + (data.error || 'Неизвестная ошибка'));
+                }
+            } catch (error) {
+                console.error('Ошибка отправки сообщения:', error);
+                alert('Ошибка отправки сообщения');
+            }
+        }
+
+        // Обработчики событий для чата
+        document.getElementById('adminSendMessageBtn').addEventListener('click', sendAdminMessage);
+
+        document.getElementById('adminChatMessageInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                sendAdminMessage();
+            }
+        });
+
+        // Автообновление чата
+        function startChatUpdater() {
+            if (chatUpdateInterval) clearInterval(chatUpdateInterval);
+
+            chatUpdateInterval = setInterval(() => {
+                if (currentChatRoomId) {
+                    loadAdminMessages(currentChatRoomId);
+                }
+                loadAdminChats();
+            }, 5000); // Обновление каждые 5 секунд
+        }
+
+        // Остановка автообновления
+        function stopChatUpdater() {
+            if (chatUpdateInterval) {
+                clearInterval(chatUpdateInterval);
+                chatUpdateInterval = null;
+            }
+        }
+
+        // Инициализация чата при открытии раздела
+        document.querySelector('[data-section="chats"]').addEventListener('click', () => {
+            loadAdminChats();
+            startChatUpdater();
+        });
+
+        // Остановка автообновления при переходе на другой раздел
+        document.querySelectorAll('[data-section]').forEach(link => {
+            link.addEventListener('click', (e) => {
+                const sectionId = e.target.getAttribute('data-section');
+                if (sectionId !== 'chats') {
+                    stopChatUpdater();
+                }
+            });
+        });
+
+        // Запуск автообновления при загрузке страницы, если открыт раздел чатов
+        document.addEventListener('DOMContentLoaded', () => {
+            if (document.getElementById('chats').classList.contains('active')) {
+                loadAdminChats();
+                startChatUpdater();
+            }
+        });
+    </script>
+
+</div>
+</body>
+</html>

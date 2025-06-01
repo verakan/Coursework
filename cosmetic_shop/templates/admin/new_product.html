@@ -1,0 +1,38 @@
+{% extends "admin/admin_base.html" %}
+
+{% block content %}
+<h2>Добавить новый товар</h2>
+<div class="admin-card">
+    <form method="POST" action="{{ url_for('admin_new_product') }}">
+        <div class="form-group">
+            <label for="name">Название товара</label>
+            <input type="text" id="name" name="name" required>
+        </div>
+        <div class="form-group">
+            <label for="category">Категория</label>
+            <select id="category" name="category" required>
+                <option value="">Выберите категорию</option>
+                {% for category in categories %}
+                <option value="{{ category }}">{{ category }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="price">Цена (₽)</label>
+            <input type="number" id="price" name="price" min="0" step="0.01" required>
+        </div>
+        <div class="form-group">
+            <label for="description">Описание</label>
+            <textarea id="description" name="description"></textarea>
+        </div>
+        <div class="form-group">
+            <label for="stock">Количество на складе</label>
+            <input type="number" id="stock" name="stock" min="0" value="0">
+        </div>я
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">Сохранить товар</button>
+            <a href="{{ url_for('admin_products') }}" class="btn btn-secondary">Отмена</a>
+        </div>
+    </form>
+</div>
+{% endblock %}
